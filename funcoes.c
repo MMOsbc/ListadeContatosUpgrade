@@ -1,15 +1,13 @@
 #include <stdio.h>
-
+#include <stdlib.h>
+#include <stdbool.h>
+#include <ctype.h>
 #include <string.h>
 #include "funcoes.h"
 
-#include <stdbool.h>
-#include <ctype.h>
-// inclusão das bibliotecas
 
 
 
-// criação da função
 int validarEmail(const char *email) {
     int tamanho = strlen(email);
     int i, at = 0, ponto = 0;
@@ -47,10 +45,9 @@ int validarEmail(const char *email) {
     return true;
 }
 
-
-void cadastrarContatos(ListaDeContatos *lt) {
-    if (lt->qtd >= 255) {
-        printf("A lista de contatos está cheia. Não é possível cadastrar mais contatos\n");
+void cadastrarContatoPessoal(ListaDeContatos *lt) {
+    if (lt->qtd_pessoais >= 255) {
+        printf("A lista de contatos pessoais está cheia. Não é possível cadastrar mais contatos.\n");
         return;
     }
 
@@ -63,8 +60,8 @@ void cadastrarContatos(ListaDeContatos *lt) {
     scanf("%s", novoContato.telefone); // Lendo como uma string
 
     // Verificar se o número de telefone já existe na lista
-    for (int i = 0; i < lt->qtd; i++) {
-        if (strcmp(lt->contatos[i].telefone, novoContato.telefone) == 0) {
+    for (int i = 0; i < lt->qtd_pessoais; i++) {
+        if (strcmp(lt->contatos_pessoais[i].telefone, novoContato.telefone) == 0) {
             printf("Este número de telefone já está cadastrado.\n");
             return;
         }
@@ -87,28 +84,82 @@ void cadastrarContatos(ListaDeContatos *lt) {
         }
     } while (!validarEmail(novoContato.e_mail)); // Repetir até que um e-mail válido seja inserido
 
-    lt->contatos[lt->qtd] = novoContato;
-    lt->qtd++;
+    lt->contatos_pessoais[lt->qtd_pessoais] = novoContato;
+    lt->qtd_pessoais++;
 
-    printf("Contato cadastrado com sucesso!\n");
+    printf("Contato pessoal cadastrado com sucesso!\n");
 }
 
+void cadastrarContatoTrabalho(ListaDeContatos *lt) {
+    if (lt->qtd_trabalho >= 255) {
+        printf("A lista de contatos de trabalho está cheia. Não é possível cadastrar mais contatos.\n");
+        return;
+    }
+
+    Contato novoContato;
+
+    printf("Número de cadastro: ");
+    scanf("%lf", &novoContato.id); // Usando %lf para ler um double
+
+    printf("Telefone: ");
+    scanf("%s", novoContato.telefone); // Lendo como uma string
+
+    // Verificar se o número de telefone já existe na lista
+    for (int i = 0; i < lt->qtd_trabalho; i++) {
+        if (strcmp(lt->contatos_trabalho[i].telefone, novoContato.telefone) == 0) {
+            printf("Este número de telefone já está cadastrado.\n");
+            return;
+        }
+    }
+
+    printf("Nome (até 20 caracteres): ");
+    scanf("%s", novoContato.nome); // Lendo como uma string
+
+    printf("Sobrenome (até 50 caracteres): ");
+    scanf("%s", novoContato.sobrenome); // Lendo como uma string
+
+    // Loop para solicitar e-mail até que seja inserido um formato válido
+    do {
+        printf("E-mail (até 30 caracteres): ");
+        scanf("%s", novoContato.e_mail); // Lendo como uma string
+
+        // Validar e-mail
+        if (!validarEmail(novoContato.e_mail)) {
+            printf("E-mail inválido. Por favor, insira um e-mail válido.\n");
+        }
+    } while (!validarEmail(novoContato.e_mail)); // Repetir até que um e-mail válido seja inserido
+
+    lt->contatos_trabalho[lt->qtd_trabalho] = novoContato;
+    lt->qtd_trabalho++;
+
+    printf("Contato de trabalho cadastrado com sucesso!\n");
+}
 
 void listarContatos(ListaDeContatos lt) {
-    if (lt.qtd == 0) {
+    if (lt.qtd_pessoais == 0 && lt.qtd_trabalho == 0) {
         printf("A lista de contatos está vazia.\n");
         return;
     }
 
-    printf("Lista de Contatos:\n");
-
-    for (int i = 0; i < lt.qtd; i++) {
+    printf("Lista de Contatos Pessoais:\n");
+    for (int i = 0; i < lt.qtd_pessoais; i++) {
         printf("ID %d:\n", i + 1);
-        printf("ID: %.0lf\n", lt.contatos[i].id); // Corrigindo para %.0lf para imprimir um double como um inteiro
-        printf("Telefone: %s\n", lt.contatos[i].telefone);
-        printf("Nome: %s\n", lt.contatos[i].nome);
-        printf("Sobrenome: %s\n", lt.contatos[i].sobrenome);
-        printf("E-mail: %s\n", lt.contatos[i].e_mail);
+        printf("ID: %.0lf\n", lt.contatos_pessoais[i].id);
+        printf("Telefone: %s\n", lt.contatos_pessoais[i].telefone);
+        printf("Nome: %s\n", lt.contatos_pessoais[i].nome);
+        printf("Sobrenome: %s\n", lt.contatos_pessoais[i].sobrenome);
+        printf("E-mail: %s\n", lt.contatos_pessoais[i].e_mail);
+        printf("\n");
+    }
+
+    printf("Lista de Contatos de Trabalho:\n");
+    for (int i = 0; i < lt.qtd_trabalho; i++) {
+        printf("ID %d:\n", i + 1);
+        printf("ID: %.0lf\n", lt.contatos_trabalho[i].id);
+        printf("Telefone: %s\n", lt.contatos_trabalho[i].telefone);
+        printf("Nome: %s\n", lt.contatos_trabalho[i].nome);
+        printf("Sobrenome: %s\n", lt.contatos_trabalho[i].sobrenome);
+        printf("E-mail: %s\n", lt.contatos_trabalho[i].e_mail);
         printf("\n");
     }
 }
@@ -121,15 +172,11 @@ void carregarContatos(ListaDeContatos*lt, const char *arquivo) {
         return;
     }
 
-    fread(&(lt->qtd), sizeof(int), 1, file);
+    fread(&(lt->qtd_pessoais), sizeof(int), 1, file);
+    fread(lt->contatos_pessoais, sizeof(Contato), lt->qtd_pessoais, file);
 
-    if (lt->qtd > 255) {
-        printf("Erro: O número de contatos no arquivo é maior do que o limite permitido.\n");
-        fclose(file);
-        return;
-    }
-
-    fread(lt->contatos, sizeof(Contato), lt->qtd, file); // Corrigindo para lt->contatos
+    fread(&(lt->qtd_trabalho), sizeof(int), 1, file);
+    fread(lt->contatos_trabalho, sizeof(Contato), lt->qtd_trabalho, file);
 
     fclose(file);
     printf("Contatos carregados com sucesso a partir do arquivo: %s\n", arquivo);
@@ -143,94 +190,137 @@ void salvarContatos(ListaDeContatos lt, const char *arquivo) {
         return;
     }
 
-    fwrite(&(lt.qtd), sizeof(int), 1, file);
-    fwrite(lt.contatos, sizeof(Contato), lt.qtd, file); // Corrigindo para lt.contatos
+    fwrite(&(lt.qtd_pessoais), sizeof(int), 1, file);
+    fwrite(lt.contatos_pessoais, sizeof(Contato), lt.qtd_pessoais, file);
+
+    fwrite(&(lt.qtd_trabalho), sizeof(int), 1, file);
+    fwrite(lt.contatos_trabalho, sizeof(Contato), lt.qtd_trabalho, file);
 
     fclose(file);
     printf("Contatos salvos com sucesso no arquivo: %s\n", arquivo);
 }
 
 void deletarContato(ListaDeContatos *lt) {
-    int posicao = -1;
     char telefone[15];
     printf("Digite o número de telefone do contato que deseja deletar: ");
     scanf("%s", telefone);
 
+    bool encontrado = false;
+
     // Procurar o contato pelo telefone
-    for (int i = 0; i < lt->qtd; i++) {
-        if (strcmp(lt->contatos[i].telefone, telefone) == 0) {
-            posicao = i;
+    for (int i = 0; i < lt->qtd_pessoais; i++) {
+        if (strcmp(lt->contatos_pessoais[i].telefone, telefone) == 0) {
+            for (int j = i; j < lt->qtd_pessoais - 1; j++) {
+                lt->contatos_pessoais[j] = lt->contatos_pessoais[j + 1];
+            }
+            lt->qtd_pessoais--;
+            encontrado = true;
             break;
         }
     }
 
-    if (posicao == -1) {
+    if (!encontrado) {
+        for (int i = 0; i < lt->qtd_trabalho; i++) {
+            if (strcmp(lt->contatos_trabalho[i].telefone, telefone) == 0) {
+                for (int j = i; j < lt->qtd_trabalho - 1; j++) {
+                    lt->contatos_trabalho[j] = lt->contatos_trabalho[j + 1];
+                }
+                lt->qtd_trabalho--;
+                encontrado = true;
+                break;
+            }
+        }
+    }
+
+    if (encontrado) {
+        printf("Contato com o telefone %s deletado com sucesso.\n", telefone);
+    } else {
         printf("Contato com o telefone %s não encontrado.\n", telefone);
-        return;
     }
-
-    // Remover o contato encontrando deslocando os contatos restantes para a esquerda
-    for (int i = posicao; i < lt->qtd - 1; i++) {
-        lt->contatos[i] = lt->contatos[i + 1];
-    }
-
-    lt->qtd--;
-
-    printf("Contato com o telefone %s deletado com sucesso.\n", telefone);
 }
 
 void alterarContato(ListaDeContatos *lt) {
-    if (lt->qtd == 0) {
-        printf("A lista de contatos está vazia. Não há contatos para alterar.\n");
-        return;
-    }
-
     char telefone[15];
     printf("Digite o número de telefone do contato que deseja alterar: ");
     scanf("%s", telefone);
 
+    bool encontrado = false;
+
     // Procurar o contato pelo telefone
-    int posicao = -1;
-    for (int i = 0; i < lt->qtd; i++) {
-        if (strcmp(lt->contatos[i].telefone, telefone) == 0) {
-            posicao = i;
+    for (int i = 0; i < lt->qtd_pessoais; i++) {
+        if (strcmp(lt->contatos_pessoais[i].telefone, telefone) == 0) {
+            printf("Dados atuais do contato:\n");
+            printf("Nome: %s\n", lt->contatos_pessoais[i].nome);
+            printf("Sobrenome: %s\n", lt->contatos_pessoais[i].sobrenome);
+            printf("E-mail: %s\n", lt->contatos_pessoais[i].e_mail);
+            printf("\n");
+
+            Contato novoContato;
+            printf("Novo nome (até 20 caracteres): ");
+            scanf("%s", novoContato.nome); // Lendo como uma string
+
+            printf("Novo sobrenome (até 50 caracteres): ");
+            scanf("%s", novoContato.sobrenome); // Lendo como uma string
+
+            // Loop para solicitar e-mail até que seja inserido um formato válido
+            do {
+                printf("Novo e-mail (até 30 caracteres): ");
+                scanf("%s", novoContato.e_mail); // Lendo como uma string
+
+                // Validar e-mail
+                if (!validarEmail(novoContato.e_mail)) {
+                    printf("E-mail inválido. Por favor, insira um e-mail válido.\n");
+                }
+            } while (!validarEmail(novoContato.e_mail)); // Repetir até que um e-mail válido seja inserido
+
+            // Atualizar os dados do contato
+            lt->contatos_pessoais[i] = novoContato;
+            printf("Contato pessoal alterado com sucesso!\n");
+            encontrado = true;
             break;
         }
     }
 
-    if (posicao == -1) {
-        printf("Contato com o telefone %s não encontrado.\n", telefone);
-        return;
+    if (!encontrado) {
+        for (int i = 0; i < lt->qtd_trabalho; i++) {
+            if (strcmp(lt->contatos_trabalho[i].telefone, telefone) == 0) {
+                printf("Dados atuais do contato:\n");
+                printf("Nome: %s\n", lt->contatos_trabalho[i].nome);
+                printf("Sobrenome: %s\n", lt->contatos_trabalho[i].sobrenome);
+                printf("E-mail: %s\n", lt->contatos_trabalho[i].e_mail);
+                printf("\n");
+
+                Contato novoContato;
+                printf("Novo nome (até 20 caracteres): ");
+                scanf("%s", novoContato.nome); // Lendo como uma string
+
+                printf("Novo sobrenome (até 50 caracteres): ");
+                scanf("%s", novoContato.sobrenome); // Lendo como uma string
+
+                // Loop para solicitar e-mail até que seja inserido um formato válido
+                do {
+                    printf("Novo e-mail (até 30 caracteres): ");
+                    scanf("%s", novoContato.e_mail); // Lendo como uma string
+
+                    // Validar e-mail
+                    if (!validarEmail(novoContato.e_mail)) {
+                        printf("E-mail inválido. Por favor, insira um e-mail válido.\n");
+                    }
+                } while (!validarEmail(novoContato.e_mail)); // Repetir até que um e-mail válido seja inserido
+
+                // Atualizar os dados do contato
+                lt->contatos_trabalho[i] = novoContato;
+                printf("Contato de trabalho alterado com sucesso!\n");
+                encontrado = true;
+                break;
+            }
+        }
     }
 
-    // Imprimir os dados atuais do contato
-    printf("Dados atuais do contato:\n");
-    printf("Nome: %s\n", lt->contatos[posicao].nome);
-    printf("Sobrenome: %s\n", lt->contatos[posicao].sobrenome);
-    printf("E-mail: %s\n", lt->contatos[posicao].e_mail);
-
-    Contato novoContato;
-
-    printf("Novo nome (até 20 caracteres): ");
-    scanf("%s", novoContato.nome); // Lendo como uma string
-
-    printf("Novo sobrenome (até 50 caracteres): ");
-    scanf("%s", novoContato.sobrenome); // Lendo como uma string
-
-    // Loop para solicitar e-mail até que seja inserido um formato válido
-    do {
-        printf("Novo e-mail (até 30 caracteres): ");
-        scanf("%s", novoContato.e_mail); // Lendo como uma string
-
-        // Validar e-mail
-        if (!validarEmail(novoContato.e_mail)) {
-            printf("E-mail inválido. Por favor, insira um e-mail válido.\n");
-        }
-    } while (!validarEmail(novoContato.e_mail)); // Repetir até que um e-mail válido seja inserido
-
-    // Atualizar os dados do contato
-    lt->contatos[posicao] = novoContato;
-
+    if (!encontrado) {
+        printf("Contato com o telefone %s não encontrado.\n", telefone);
+    }
+}
     printf("Contato alterado com sucesso!\n");
 }
 
