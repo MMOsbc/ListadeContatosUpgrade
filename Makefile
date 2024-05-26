@@ -1,19 +1,16 @@
-CC = gcc
-CFLAGS = -Wall -Wextra -std=c99
-SRCS = main.c funcoes.c
-OBJS = $(SRCS:.c=.o)
-TARGET = meu_programa
+all: main
 
-all: $(TARGET)
+CC = clang
+override CFLAGS += -g -Wno-everything -pthread -lm
 
-$(TARGET): $(OBJS)
-    $(CC) $(CFLAGS) $(OBJS) -o $(TARGET)
+SRCS = $(shell find . -name '.ccls-cache' -type d -prune -o -type f -name '*.c' -print)
+HEADERS = $(shell find . -name '.ccls-cache' -type d -prune -o -type f -name '*.h' -print)
 
-main.o: main.c funcoes.h
-    $(CC) $(CFLAGS) -c main.c
+main: $(SRCS) $(HEADERS)
+		$(CC) $(CFLAGS) $(SRCS) -o "$@"
 
-funcoes.o: funcoes.c funcoes.h
-    $(CC) $(CFLAGS) -c funcoes.c
+main-debug: $(SRCS) $(HEADERS)
+		$(CC) $(CFLAGS) -O0 $(SRCS) -o "$@"
 
 clean:
-    rm -f $(OBJS) $(TARGET)
+		rm -f main main-debug
