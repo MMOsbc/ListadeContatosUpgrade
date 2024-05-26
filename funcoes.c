@@ -321,6 +321,4 @@ void alterarContato(ListaDeContatos *lt) {
         printf("Contato com o telefone %s não encontrado.\n", telefone);
     }
 }
-    printf("Contato alterado com sucesso!\n");
-}
 
