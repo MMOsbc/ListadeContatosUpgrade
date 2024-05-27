@@ -59,11 +59,11 @@ void cadastrarContatoPessoal(ListaDeContatos *lt) {
     printf("Telefone: ");
     scanf("%s", novoContato.telefone); // Lendo como uma string
 
-    // Verificar se o número de telefone já existe na lista
+    // Verificar se o número de telefone já existe na lista de contatos pessoais
     for (int i = 0; i < lt->qtd_pessoais; i++) {
         if (strcmp(lt->contatos_pessoais[i].telefone, novoContato.telefone) == 0) {
-            printf("Este número de telefone já está cadastrado.\n");
-            return;
+            printf("Este número de telefone já está cadastrado como um contato pessoal.\n");
+            return; // Sai da função, pois não é permitido cadastrar um número de telefone já existente
         }
     }
 
@@ -104,11 +104,11 @@ void cadastrarContatoTrabalho(ListaDeContatos *lt) {
     printf("Telefone: ");
     scanf("%s", novoContato.telefone); // Lendo como uma string
 
-    // Verificar se o número de telefone já existe na lista
+    // Verificar se o número de telefone já existe na lista de contatos de trabalho
     for (int i = 0; i < lt->qtd_trabalho; i++) {
         if (strcmp(lt->contatos_trabalho[i].telefone, novoContato.telefone) == 0) {
-            printf("Este número de telefone já está cadastrado.\n");
-            return;
+            printf("Este número de telefone já está cadastrado como um contato de trabalho.\n");
+            return; // Sai da função, pois não é permitido cadastrar um número de telefone já existente
         }
     }
 
